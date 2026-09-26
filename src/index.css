@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 0.75rem;
+
+  /* Theme variables matching modern clean aesthetic */
+  --background: oklch(97.5% 0.012 85);
+  --foreground: oklch(22% 0.04 200);
+  --card: oklch(99.5% 0.005 85);
+  --card-foreground: oklch(22% 0.04 200);
+  --popover: oklch(99.5% 0.005 85);
+  --popover-foreground: oklch(22% 0.04 200);
+  
+  --primary: oklch(42% 0.09 195);
+  --primary-foreground: oklch(98% 0.01 85);
+  
+  --secondary: oklch(93% 0.02 85);
+  --secondary-foreground: oklch(22% 0.04 200);
+  
+  --muted: oklch(94% 0.015 85);
+  --muted-foreground: oklch(50% 0.03 200);
+  
+  --accent: oklch(80% 0.15 75);
+  --accent-foreground: oklch(22% 0.04 200);
+  
+  --destructive: oklch(58% 0.2 25);
+  --destructive-foreground: oklch(98% 0.01 85);
+  
+  --border: oklch(88% 0.02 85);
+  --input: oklch(88% 0.02 85);
+  --ring: oklch(42% 0.09 195);
+
+  /* Status Colors */
+  --present: oklch(58% 0.14 160);
+  --absent: oklch(60% 0.2 25);
+  --late: oklch(75% 0.15 70);
+  --halfday: oklch(62% 0.16 230);
+  --excused: oklch(58% 0.18 300);
+
+  /* Header / Sidebar */
+  --sidebar: oklch(26% 0.05 200);
+  --sidebar-foreground: oklch(95% 0.02 85);
+}
+
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Custom pulsing live dot */
+.live-dot {
+  position: relative;
+}
+.live-dot::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  background-color: currentColor;
+  opacity: 0.6;
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Dedicated Print Styles for Paper Roll-Call */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt !important;
+  }
+
+  header,
+  nav,
+  aside,
+  .no-print,
+  button,
+  input[type="date"],
+  input[type="text"],
+  select {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-page {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    border: 1px solid #333 !important;
+    padding: 6px 10px !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+}
