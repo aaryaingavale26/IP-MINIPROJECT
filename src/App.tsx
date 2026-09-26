@@ -19,6 +19,7 @@ export const App: React.FC = () => {
   };
 
   const handleSignOut = () => {
+    StorageService.setCurrentUser(null);
     setCurrentUser(null);
   };
 

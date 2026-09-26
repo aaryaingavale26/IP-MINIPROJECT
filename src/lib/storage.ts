@@ -20,29 +20,103 @@ export const INITIAL_STUDENTS: Student[] = [
   { id: 'std-012', name: 'Kunal Shinde', roll: 'MCA-303', course: 'MCA', section: 'Section B' },
 ];
 
-export const DEFAULT_USER: UserProfile = {
-  email: 'prof.aarya@institution.edu',
-  name: 'Prof. Aarya Ingavale',
-  role: 'teacher'
-};
+const FACULTY_LIST_KEY = 'attendance_erp_faculty_list_v1';
+
+export interface FacultyAccount extends UserProfile {
+  password: string;
+}
 
 function triggerStorageChange() {
   window.dispatchEvent(new Event('attendance-storage-change'));
 }
 
 export const StorageService = {
-  getCurrentUser(): UserProfile {
+  getCurrentUser(): UserProfile | null {
     try {
       const data = localStorage.getItem(USER_KEY);
-      return data ? JSON.parse(data) : DEFAULT_USER;
+      return data ? JSON.parse(data) : null;
     } catch {
-      return DEFAULT_USER;
+      return null;
     }
   },
 
-  setCurrentUser(user: UserProfile) {
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+  setCurrentUser(user: UserProfile | null) {
+    if (user) {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(USER_KEY);
+    }
     triggerStorageChange();
+  },
+
+  getRegisteredFaculty(): FacultyAccount[] {
+    try {
+      const data = localStorage.getItem(FACULTY_LIST_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  registerFaculty(account: FacultyAccount): { success: boolean; error?: string; user?: UserProfile } {
+    const list = this.getRegisteredFaculty();
+    const existing = list.find(
+      f =>
+        f.email.toLowerCase() === account.email.toLowerCase() ||
+        (f.facultyId && account.facultyId && f.facultyId.toLowerCase() === account.facultyId.toLowerCase())
+    );
+
+    if (existing) {
+      return { success: false, error: 'A faculty member with this ID or Email is already registered. Please sign in.' };
+    }
+
+    const updated = [...list, account];
+    localStorage.setItem(FACULTY_LIST_KEY, JSON.stringify(updated));
+
+    const profile: UserProfile = {
+      email: account.email,
+      name: account.name,
+      role: account.role,
+      facultyId: account.facultyId,
+      department: account.department,
+    };
+    this.setCurrentUser(profile);
+    return { success: true, user: profile };
+  },
+
+  authenticateFaculty(
+    idOrEmail: string,
+    password: string
+  ): { success: boolean; error?: string; user?: UserProfile } {
+    const cleanIdentifier = idOrEmail.trim().toLowerCase();
+    const list = this.getRegisteredFaculty();
+
+    const faculty = list.find(
+      f =>
+        f.email.toLowerCase() === cleanIdentifier ||
+        (f.facultyId && f.facultyId.toLowerCase() === cleanIdentifier)
+    );
+
+    if (!faculty) {
+      return {
+        success: false,
+        error: 'No registered faculty account found with this ID / Email. Please create an account using "Register New Faculty".',
+      };
+    }
+
+    if (faculty.password !== password) {
+      return { success: false, error: 'Incorrect password. Please verify and try again.' };
+    }
+
+    const profile: UserProfile = {
+      email: faculty.email,
+      name: faculty.name,
+      role: faculty.role,
+      facultyId: faculty.facultyId,
+      department: faculty.department,
+    };
+    this.setCurrentUser(profile);
+    return { success: true, user: profile };
   },
 
   getStudents(): Student[] {

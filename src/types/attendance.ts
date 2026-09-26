@@ -46,6 +46,8 @@ export interface UserProfile {
   email: string;
   name: string;
   role: 'teacher' | 'admin' | 'staff';
+  facultyId?: string;
+  department?: string;
 }
 
 export const COURSES = [
